@@ -1372,7 +1372,7 @@ ASTNode* statement() {
             error("unexpected '}'");
             next_token();
         } else if (current_token.lexeme[0] == ';') {
-            error("unexpected ';'");
+            // 空语句，直接跳过分号
             next_token();
         } else {
             char msg[100];
@@ -1420,12 +1420,6 @@ ASTNode* statement_list() {
 
         if (current_token.type == TOKEN_DELIMITER && current_token.lexeme[0] == '}') {
             error("unexpected '}'");
-            next_token();
-            continue;
-        }
-
-        if (current_token.type == TOKEN_DELIMITER && current_token.lexeme[0] == ';') {
-            error("unexpected ';'");
             next_token();
             continue;
         }
@@ -1805,11 +1799,11 @@ int pop_return_address(void) {
 
 void process_node(ASTNode *node) {
     if (!node) return;
-
+    
     ASTNode *next_node = node->next;
-
+    
     Token tok = node->token;
-
+    
     if (tok.type == TOKEN_KEYWORD) {
         if (strcmp(tok.lexeme, "program") == 0) {
             // 不进入scope，让全局变量在scope 0中
@@ -2115,29 +2109,67 @@ void process_node(ASTNode *node) {
                     sprintf(switch_expr_arg, "%d", symbol_table[idx].offset);
                     is_global = (symbol_table[idx].scope == 0);
                 } else {
-                    // 如果找不到变量，使用临时变量
+                    // 如果找不到变量，使用临时变量（直接处理表达式）
                     int switch_temp_offset = alloc_temp_var("int");
                     sprintf(switch_expr_arg, "%d", switch_temp_offset);
-                    process_node(node->left);
+                    // 不调用 process_node，直接处理简单的数字表达式
+                    if (node->left->token.type == TOKEN_NUM) {
+                        generate_code("LOADI", node->left->token.lexeme, tok.line_no);
+                    } else {
+                        process_node(node->left);
+                    }
                     generate_code("STO", switch_expr_arg, tok.line_no);
                     is_global = false;
                 }
             } else {
-                // 非标识符表达式，使用临时变量存储
+                // 非标识符表达式，使用临时变量存储（直接处理简单的数字表达式）
                 int switch_temp_offset = alloc_temp_var("int");
                 sprintf(switch_expr_arg, "%d", switch_temp_offset);
-                process_node(node->left);
+                // 不调用 process_node，直接处理简单的数字表达式
+                if (node->left && node->left->token.type == TOKEN_NUM) {
+                    generate_code("LOADI", node->left->token.lexeme, tok.line_no);
+                } else if (node->left) {
+                    process_node(node->left);
+                }
                 generate_code("STO", switch_expr_arg, tok.line_no);
                 is_global = false;
             }
 
-            ASTNode *cases = node->right;
             char *default_label = new_label("DEFAULT");
             char *end_switch_label = new_label("ENDSWITCH");
 
+            // 第一遍：为所有有语句体的 case 预生成标签
+            // 这样空 case 可以跳转到正确的位置
+            #define MAX_CASE_LABELS 20
+            char *case_body_labels[MAX_CASE_LABELS];
+            ASTNode *case_nodes[MAX_CASE_LABELS];
+            int case_count = 0;
+            
+            ASTNode *cases = node->right;
+            while (cases && case_count < MAX_CASE_LABELS) {
+                if (strcmp(cases->token.lexeme, "case") == 0) {
+                    case_nodes[case_count] = cases;
+                    case_body_labels[case_count] = new_label("CASEBODY");
+                    case_count++;
+                }
+                cases = cases->next;
+            }
+
+            // 第二遍：生成代码
+            cases = node->right;
+            int current_case_idx = 0;
+            
             while (cases) {
                 if (strcmp(cases->token.lexeme, "case") == 0) {
-                    // 直接加载switch表达式变量进行比较，不需要额外临时变量
+                    bool has_body = (cases->right != NULL);
+                    
+                    // 查找下一个有语句体的 case 的索引
+                    int next_body_idx = current_case_idx + 1;
+                    while (next_body_idx < case_count && case_nodes[next_body_idx]->right == NULL) {
+                        next_body_idx++;
+                    }
+                    
+                    // 生成比较代码
                     if (is_global) {
                         generate_code("LOADI", switch_expr_arg, tok.line_no);
                         generate_code("ADD", "", tok.line_no);
@@ -2149,11 +2181,83 @@ void process_node(ASTNode *node) {
                     sprintf(case_val, "%d", cases->left->token.int_value);
                     generate_code("LOADI", case_val, tok.line_no);
                     generate_code("EQ", "", tok.line_no);
-                    char *case_label = new_label("CASE");
-                    generate_code("BRF", case_label, tok.line_no);
-                    process_node(cases->right);
-                    generate_code("BR", end_switch_label, tok.line_no);
-                    generate_code(case_label, ":", tok.line_no);
+                    
+                    if (has_body) {
+                        // 有语句体：匹配时执行语句体，不匹配时跳到下一个 case
+                        char *skip_label = new_label("CASE");
+                        generate_code("BRF", skip_label, tok.line_no);
+                        
+                        // 语句体开始标签（供前面的空 case 跳转）
+                        generate_code(case_body_labels[current_case_idx], ":", tok.line_no);
+                        
+                        // 遍历语句列表，完全手动处理每个语句
+                        ASTNode *stmt = cases->right;
+                        while (stmt) {
+                            Token stmt_tok = stmt->token;
+                            
+                            if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "break") == 0) {
+                                // 在 switch 中，break 跳转到 ENDSWITCH
+                                generate_code("BR", end_switch_label, stmt_tok.line_no);
+                            } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "continue") == 0) {
+                                // continue 在 switch 中也当作 break 处理（跳转到 ENDSWITCH）
+                                generate_code("BR", end_switch_label, stmt_tok.line_no);
+                            } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "return") == 0) {
+                                // return 语句：处理返回值
+                                if (stmt->left) {
+                                    process_node(stmt->left);
+                                }
+                                generate_code("RETURN", "", stmt_tok.line_no);
+                            } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "write") == 0) {
+                                // write 语句
+                                if (stmt->left) {
+                                    process_node(stmt->left);
+                                }
+                                generate_code("OUT", "", stmt_tok.line_no);
+                            } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "read") == 0) {
+                                // read 语句
+                                if (stmt->left) {
+                                    process_node(stmt->left);
+                                }
+                                generate_code("IN", "", stmt_tok.line_no);
+                            } else if (stmt_tok.type == TOKEN_OPERATOR && strcmp(stmt_tok.lexeme, "=") == 0) {
+                                // 赋值语句：使用 process_node 处理复杂的右边表达式
+                                if (stmt->right) {
+                                    process_node(stmt->right);
+                                }
+                                // 处理左边
+                                if (stmt->left && stmt->left->token.type == TOKEN_IDENTIFIER) {
+                                    int idx = lookup_symbol(stmt->left->token.lexeme, current_scope);
+                                    if (idx != -1) {
+                                        char arg[MAX_IDENT_LEN];
+                                        sprintf(arg, "%d", symbol_table[idx].offset);
+                                        generate_code("STO", arg, stmt_tok.line_no);
+                                    }
+                                }
+                            } else {
+                                // 其他语句使用 process_node 处理
+                                process_node(stmt);
+                            }
+                            stmt = stmt->next;
+                        }
+                        // 如果没有 break 语句，自动 fall-through 到下一个 case
+                        generate_code(skip_label, ":", tok.line_no);
+                    } else {
+                        // 没有语句体（空 case）：匹配时跳转到下一个有语句体的 case
+                        char *skip_label = new_label("CASE");
+                        
+                        if (next_body_idx < case_count) {
+                            // 跳转到下一个有语句体的 case 的语句体
+                            generate_code("BRF", skip_label, tok.line_no);
+                            generate_code("BR", case_body_labels[next_body_idx], tok.line_no);
+                        } else {
+                            // 没有后续有语句体的 case，跳转到 default 或 end
+                            generate_code("BRF", skip_label, tok.line_no);
+                            generate_code("BR", default_label, tok.line_no);
+                        }
+                        generate_code(skip_label, ":", tok.line_no);
+                    }
+                    
+                    current_case_idx++;
                 } else if (strcmp(cases->token.lexeme, "default") == 0) {
                     generate_code("BR", default_label, tok.line_no);
                 }
@@ -2161,16 +2265,63 @@ void process_node(ASTNode *node) {
             }
 
             generate_code(default_label, ":", tok.line_no);
-            // 处理 default 分支的语句体
+            // 处理 default 分支的语句体（完全手动处理）
             cases = node->right;
             while (cases) {
                 if (strcmp(cases->token.lexeme, "default") == 0) {
-                    process_node(cases->right);
+                    // 遍历语句列表，完全手动处理每个语句
+                    ASTNode *stmt = cases->right;
+                    while (stmt) {
+                        Token stmt_tok = stmt->token;
+                        
+                        if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "break") == 0) {
+                            // 在 switch 中，break 跳转到 ENDSWITCH
+                            generate_code("BR", end_switch_label, stmt_tok.line_no);
+                        } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "continue") == 0) {
+                            // continue 在 switch 中也当作 break 处理
+                            generate_code("BR", end_switch_label, stmt_tok.line_no);
+                        } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "return") == 0) {
+                            // return 语句：处理返回值
+                            if (stmt->left) {
+                                process_node(stmt->left);
+                            }
+                            generate_code("RETURN", "", stmt_tok.line_no);
+                        } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "write") == 0) {
+                            // write 语句
+                            if (stmt->left) {
+                                process_node(stmt->left);
+                            }
+                            generate_code("OUT", "", stmt_tok.line_no);
+                        } else if (stmt_tok.type == TOKEN_KEYWORD && strcmp(stmt_tok.lexeme, "read") == 0) {
+                            // read 语句
+                            if (stmt->left) {
+                                process_node(stmt->left);
+                            }
+                            generate_code("IN", "", stmt_tok.line_no);
+                        } else if (stmt_tok.type == TOKEN_OPERATOR && strcmp(stmt_tok.lexeme, "=") == 0) {
+                            // 赋值语句：使用 process_node 处理复杂的右边表达式
+                            if (stmt->right) {
+                                process_node(stmt->right);
+                            }
+                            // 处理左边
+                            if (stmt->left && stmt->left->token.type == TOKEN_IDENTIFIER) {
+                                int idx = lookup_symbol(stmt->left->token.lexeme, current_scope);
+                                if (idx != -1) {
+                                    char arg[MAX_IDENT_LEN];
+                                    sprintf(arg, "%d", symbol_table[idx].offset);
+                                    generate_code("STO", arg, stmt_tok.line_no);
+                                }
+                            }
+                        } else {
+                            // 其他语句使用 process_node 处理
+                            process_node(stmt);
+                        }
+                        stmt = stmt->next;
+                    }
                     break;
                 }
                 cases = cases->next;
             }
-            generate_code("BR", end_switch_label, tok.line_no);
             generate_code(end_switch_label, ":", tok.line_no);
         } else if (strcmp(tok.lexeme, "read") == 0) {
             if (node->left && node->left->token.type == TOKEN_IDENTIFIER) {

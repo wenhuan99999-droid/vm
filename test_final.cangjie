@@ -12,15 +12,19 @@ func func2(x:int):int {
     return local;
 }
 
-// 功能1: switch语句
+// 功能1: switch语句（测试空case的fall-through和break）
 func test_switch(n:int):int {
-    var result:int;
+    var result:int = 0;
     switch(n) {
-        case 1: result = 100;
-        case 2: result = 200;
-        case 3: result = 300;
-        case 4: result = 400;
-        default: ;
+        case 1: break;        // n=1 时执行break，直接跳出switch
+        case 2: result = 100;  // n=2 时执行赋值语句
+            break;             // 执行完后跳出switch
+        case 3: break;         // n=3 时执行break，直接跳出switch（不赋值）
+        case 4:                // n=4 时fall-through到case 5
+        case 5: result = 200;  // n=4或n=5时执行赋值语句
+            break;              // 执行完后跳出switch
+        default: result = 999;  // 都不匹配时执行
+            break;
     }
     return result;
 }
@@ -45,12 +49,13 @@ main() {
     write func1(5);        // 应输出 6
     write func2(5);        // 应输出 10
     
-    // 测试功能1: switch语句
-    write test_switch(1);  // case 1 → 输出100
-    write test_switch(2);  // case 2 → 输出200
-    write test_switch(3);  // case 3 → 输出300
-    write test_switch(4);  // case 4 → 输出400
-    write test_switch(100);  // default → 输出999
+    // 测试功能1: switch语句（空case的fall-through和break）
+    write test_switch(1);    // n=1，case 1执行break → 输出0
+    write test_switch(2);    // n=2，case 2赋值后break → 输出100
+    write test_switch(3);    // n=3，case 3执行break → 输出0
+    write test_switch(4);    // n=4，fall-through到case 5 → 输出200
+    write test_switch(5);    // n=5，case 5赋值后break → 输出200
+    write test_switch(100);  // 都不匹配，default → 输出999
     
     // 测试功能7: 数组
     fill_array();

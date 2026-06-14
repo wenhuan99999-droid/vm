@@ -1,7 +1,7 @@
 ===== Intermediate Code =====
 Line Op           Arg             Source Line
 ----------------------------------------
-1    BR           80              0
+1    BR           89              0
 2    _func_func1  entry           5
 3    ENTER        1               5
 4    STO          4               5
@@ -23,151 +23,163 @@ Line Op           Arg             Source Line
 20   _func_test_switch entry           16
 21   ENTER        1               16
 22   STO          8               16
-23   LOAD         8               0
-24   LOADI        1               0
-25   EQ                           0
-26   BRF          30              0
-27   LOADI        100             19
-28   STO          9               19
-29   BR           59              0
-30   CASE2        entry           0
-31   LOAD         8               0
-32   LOADI        2               0
-33   EQ                           0
-34   BRF          38              0
-35   LOADI        200             20
-36   STO          9               20
-37   BR           59              0
-38   CASE3        entry           0
-39   LOAD         8               0
-40   LOADI        3               0
-41   EQ                           0
-42   BRF          46              0
-43   LOADI        300             21
-44   STO          9               21
-45   BR           59              0
-46   CASE4        entry           0
-47   LOAD         8               0
-48   LOADI        4               0
-49   EQ                           0
-50   BRF          54              0
-51   LOADI        400             22
-52   STO          9               22
-53   BR           59              0
-54   CASE5        entry           0
-55   BR           56              0
-56   DEFAULT0     entry           0
-57   BR           BREAK           0
-58   BR           59              0
-59   ENDSWITCH1   entry           0
-60   LOAD         9               25
-61   RETURN                       26
-62   _func_fill_array entry           29
-63   ENTER        0               29
-64   LOADI        1               30
-65   LOADI        0               30
-66   LOADI        101             30
-67   ADD                          30
-68   STOIDX                       30
-69   LOADI        2               31
-70   LOADI        1               31
-71   LOADI        101             31
-72   ADD                          31
-73   STOIDX                       31
-74   LOADI        3               32
-75   LOADI        2               32
-76   LOADI        101             32
-77   ADD                          32
-78   STOIDX                       32
-79   RETURN                       29
-80   _func_main   entry           35
-81   ENTER        0               35
-82   LOADI        100             35
-83   STO          100             35
-84   LOADI        10              37
-85   STO          11              36
-86   LOADI        1000            39
-87   OUT                          37
-88   LOAD         100             42
-89   OUT                          37
-90   LOADI        5               45
-91   CAL          2               45
-92   OUT                          37
-93   LOADI        5               46
-94   CAL          11              46
-95   OUT                          37
-96   LOADI        1               49
-97   CAL          20              49
-98   OUT                          37
-99   LOADI        2               50
-100  CAL          20              50
-101  OUT                          37
-102  LOADI        3               51
-103  CAL          20              51
-104  OUT                          37
-105  LOADI        4               52
-106  CAL          20              52
-107  OUT                          37
-108  LOADI        100             53
-109  CAL          20              53
-110  OUT                          37
-111  CAL          62              53
-112  LOADI        0               57
-113  LOADI        101             57
-114  ADD                          57
-115  LOADIDX                      57
-116  OUT                          37
-117  LOADI        1               58
-118  LOADI        101             58
-119  ADD                          58
-120  LOADIDX                      58
-121  OUT                          37
-122  LOADI        0               61
-123  STO          12              58
-124  DO6          entry           0
-125  LOAD         12              63
-126  OUT                          0
-127  LOAD         12              64
-128  LOADI        1               64
-129  ADD                          64
-130  STO          12              64
-131  LOAD         12              65
-132  LOADI        2               65
-133  LES                          65
-134  BRF          136             0
-135  BR           124             0
-136  ENDDO7       entry           0
-137  LOADI        9               68
-138  CAL          2               68
-139  STO          10              68
-140  LOAD         10              69
-141  OUT                          7496054
-142  LOADI        5               72
-143  STO          13              69
-144  LOAD         13              73
-145  LOADI        10              73
-146  LES                          73
-147  LOAD         13              73
-148  LOADI        0               73
-149  GT                           73
-150  AND                          73
-151  BRF          154             0
-152  LOADI        1               74
-153  OUT                          32758
-154  ELSE8        entry           0
-155  LOAD         13              76
-156  LOADI        10              76
-157  GT                           76
-158  LOAD         13              76
-159  LOADI        0               76
-160  LES                          76
-161  OR                           76
-162  BRF          165             0
-163  LOADI        2               77
-164  OUT                          0
-165  ELSE9        entry           0
-166  LOADI        9999            80
-167  OUT                          529
-168  STOP                         35
+23   LOADI        0               17
+24   STO          9               17
+25   LOAD         8               0
+26   LOADI        1               0
+27   EQ                           0
+28   BRF          31              0
+29   CASEBODY2    entry           0
+30   BR           68              0
+31   CASE7        entry           0
+32   LOAD         8               0
+33   LOADI        2               0
+34   EQ                           0
+35   BRF          40              0
+36   CASEBODY3    entry           0
+37   LOADI        100             20
+38   STO          9               20
+39   BR           68              0
+40   CASE8        entry           0
+41   LOAD         8               0
+42   LOADI        3               0
+43   EQ                           0
+44   BRF          47              0
+45   CASEBODY4    entry           0
+46   BR           68              0
+47   CASE9        entry           0
+48   LOAD         8               0
+49   LOADI        4               0
+50   EQ                           0
+51   BRF          53              0
+52   BR           58              0
+53   CASE10       entry           0
+54   LOAD         8               0
+55   LOADI        5               0
+56   EQ                           0
+57   BRF          62              0
+58   CASEBODY6    entry           0
+59   LOADI        200             24
+60   STO          9               24
+61   BR           68              0
+62   CASE11       entry           0
+63   BR           64              0
+64   DEFAULT0     entry           0
+65   LOADI        999             26
+66   STO          9               26
+67   BR           68              0
+68   ENDSWITCH1   entry           0
+69   LOAD         9               29
+70   RETURN                       30
+71   _func_fill_array entry           33
+72   ENTER        0               33
+73   LOADI        1               34
+74   LOADI        0               34
+75   LOADI        101             34
+76   ADD                          34
+77   STOIDX                       34
+78   LOADI        2               35
+79   LOADI        1               35
+80   LOADI        101             35
+81   ADD                          35
+82   STOIDX                       35
+83   LOADI        3               36
+84   LOADI        2               36
+85   LOADI        101             36
+86   ADD                          36
+87   STOIDX                       36
+88   RETURN                       33
+89   _func_main   entry           39
+90   ENTER        0               39
+91   LOADI        100             39
+92   STO          100             39
+93   LOADI        10              41
+94   STO          11              40
+95   LOADI        1000            43
+96   OUT                          41
+97   LOAD         100             46
+98   OUT                          41
+99   LOADI        5               49
+100  CAL          2               49
+101  OUT                          41
+102  LOADI        5               50
+103  CAL          11              50
+104  OUT                          41
+105  LOADI        1               53
+106  CAL          20              53
+107  OUT                          41
+108  LOADI        2               54
+109  CAL          20              54
+110  OUT                          41
+111  LOADI        3               55
+112  CAL          20              55
+113  OUT                          41
+114  LOADI        4               56
+115  CAL          20              56
+116  OUT                          41
+117  LOADI        5               57
+118  CAL          20              57
+119  OUT                          41
+120  LOADI        100             58
+121  CAL          20              58
+122  OUT                          41
+123  CAL          71              58
+124  LOADI        0               62
+125  LOADI        101             62
+126  ADD                          62
+127  LOADIDX                      62
+128  OUT                          41
+129  LOADI        1               63
+130  LOADI        101             63
+131  ADD                          63
+132  LOADIDX                      63
+133  OUT                          41
+134  LOADI        0               66
+135  STO          12              63
+136  DO12         entry           0
+137  LOAD         12              68
+138  OUT                          0
+139  LOAD         12              69
+140  LOADI        1               69
+141  ADD                          69
+142  STO          12              69
+143  LOAD         12              70
+144  LOADI        2               70
+145  LES                          70
+146  BRF          148             0
+147  BR           136             0
+148  ENDDO13      entry           0
+149  LOADI        9               73
+150  CAL          2               73
+151  STO          10              73
+152  LOAD         10              74
+153  OUT                          7496054
+154  LOADI        5               77
+155  STO          13              74
+156  LOAD         13              78
+157  LOADI        10              78
+158  LES                          78
+159  LOAD         13              78
+160  LOADI        0               78
+161  GT                           78
+162  AND                          78
+163  BRF          166             0
+164  LOADI        1               79
+165  OUT                          32759
+166  ELSE14       entry           0
+167  LOAD         13              81
+168  LOADI        10              81
+169  GT                           81
+170  LOAD         13              81
+171  LOADI        0               81
+172  LES                          81
+173  OR                           81
+174  BRF          177             0
+175  LOADI        2               82
+176  OUT                          0
+177  ELSE15       entry           0
+178  LOADI        9999            85
+179  OUT                          523
+180  STOP                         39
 
-Total instructions: 168
+Total instructions: 180
