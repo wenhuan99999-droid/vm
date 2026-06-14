@@ -2483,16 +2483,42 @@ void vm_execute(void) {
 }
 
 void print_code(FILE *out) {
+    // 首先扫描所有标签，建立标签到地址的映射
+    char label_names[MAX_CODE_LINES][MAX_IDENT_LEN];
+    int label_addresses[MAX_CODE_LINES];
+    int label_count = 0;
+    
+    for (int i = 0; i < code_count; i++) {
+        if (strcmp(code[i].arg, ":") == 0) {
+            strcpy(label_names[label_count], code[i].op);
+            label_addresses[label_count] = i + 1;  // 地址是指令行号（从1开始）
+            label_count++;
+        }
+    }
+    
     fprintf(out, "===== Intermediate Code =====\n");
-    fprintf(out, "%-4s %-12s %-18s %s\n", "Line", "Opcode/Label", "Operand/Jump Target", "Source Line");
-    fprintf(out, "---------------------------------------------------------------\n");
+    fprintf(out, "%-4s %-12s %-15s %s\n", "Line", "Op", "Arg", "Source Line");
+    fprintf(out, "----------------------------------------\n");
     
     for (int i = 0; i < code_count; i++) {
         // 如果是标签（Arg为":"），特殊显示
         if (strcmp(code[i].arg, ":") == 0) {
-            fprintf(out, "%-4d %-12s %-18s %d\n", i + 1, code[i].op, "(Function Entry)", code[i].line_no);
+            fprintf(out, "%-4d %-12s %-15s %d\n", i + 1, code[i].op, "entry", code[i].line_no);
         } else {
-            fprintf(out, "%-4d %-12s %-18s %d\n", i + 1, code[i].op, code[i].arg, code[i].line_no);
+            // 检查是否是跳转指令，尝试将标签名替换为地址
+            const char *arg = code[i].arg;
+            for (int j = 0; j < label_count; j++) {
+                if (strcmp(arg, label_names[j]) == 0) {
+                    // 找到匹配的标签，显示地址
+                    fprintf(out, "%-4d %-12s %-15d %d\n", i + 1, code[i].op, label_addresses[j], code[i].line_no);
+                    arg = NULL;  // 标记已处理
+                    break;
+                }
+            }
+            if (arg != NULL) {
+                // 不是跳转标签，原样输出
+                fprintf(out, "%-4d %-12s %-15s %d\n", i + 1, code[i].op, code[i].arg, code[i].line_no);
+            }
         }
     }
     
