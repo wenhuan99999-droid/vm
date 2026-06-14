@@ -1,0 +1,282 @@
+===== Lexical Analysis Output =====
+Type       Lexeme               Line   Value
+--------------------------------------------
+KEYWORD    var                  1     
+IDENT      g_var                1     
+DELIM      :                    1     
+KEYWORD    int                  1     
+OP         =                    1     
+NUM        100                  1     100
+DELIM      ;                    1     
+KEYWORD    var                  2     
+IDENT      g_arr                2     
+DELIM      [                    2     
+NUM        3                    2     3
+DELIM      ]                    2     
+DELIM      :                    2     
+KEYWORD    int                  2     
+DELIM      ;                    2     
+KEYWORD    func                 3     
+IDENT      func1                5     
+DELIM      (                    5     
+IDENT      x                    5     
+DELIM      :                    5     
+KEYWORD    int                  5     
+DELIM      )                    5     
+DELIM      :                    5     
+KEYWORD    int                  5     
+DELIM      {                    5     
+KEYWORD    var                  6     
+IDENT      local                6     
+DELIM      :                    6     
+KEYWORD    int                  6     
+OP         =                    6     
+IDENT      x                    6     
+OP         +                    6     
+NUM        1                    6     1
+DELIM      ;                    6     
+KEYWORD    return               7     
+IDENT      local                7     
+DELIM      ;                    7     
+DELIM      }                    8     
+KEYWORD    func                 9     
+IDENT      func2                10    
+DELIM      (                    10    
+IDENT      x                    10    
+DELIM      :                    10    
+KEYWORD    int                  10    
+DELIM      )                    10    
+DELIM      :                    10    
+KEYWORD    int                  10    
+DELIM      {                    10    
+KEYWORD    var                  11    
+IDENT      local                11    
+DELIM      :                    11    
+KEYWORD    int                  11    
+OP         =                    11    
+IDENT      x                    11    
+OP         *                    11    
+NUM        2                    11    2
+DELIM      ;                    11    
+KEYWORD    return               12    
+IDENT      local                12    
+DELIM      ;                    12    
+DELIM      }                    13    
+KEYWORD    func                 14    
+IDENT      test_switch          16    
+DELIM      (                    16    
+IDENT      n                    16    
+DELIM      :                    16    
+KEYWORD    int                  16    
+DELIM      )                    16    
+DELIM      :                    16    
+KEYWORD    int                  16    
+DELIM      {                    16    
+KEYWORD    var                  17    
+IDENT      result               17    
+DELIM      :                    17    
+KEYWORD    int                  17    
+DELIM      ;                    17    
+IDENT      switch               18    
+DELIM      (                    18    
+IDENT      n                    18    
+DELIM      )                    18    
+DELIM      {                    18    
+KEYWORD    case                 19    
+NUM        1                    19    1
+DELIM      :                    19    
+IDENT      result               19    
+OP         =                    19    
+NUM        100                  19    100
+DELIM      ;                    19    
+KEYWORD    case                 20    
+NUM        2                    20    2
+DELIM      :                    20    
+IDENT      result               20    
+OP         =                    20    
+NUM        200                  20    200
+DELIM      ;                    20    
+KEYWORD    case                 21    
+NUM        3                    21    3
+DELIM      :                    21    
+IDENT      result               21    
+OP         =                    21    
+NUM        300                  21    300
+DELIM      ;                    21    
+KEYWORD    case                 22    
+NUM        4                    22    4
+DELIM      :                    22    
+IDENT      result               22    
+OP         =                    22    
+NUM        400                  22    400
+DELIM      ;                    22    
+IDENT      default              23    
+DELIM      :                    23    
+IDENT      result               23    
+OP         =                    23    
+NUM        999                  23    999
+DELIM      ;                    23    
+DELIM      }                    24    
+KEYWORD    return               25    
+IDENT      result               25    
+DELIM      ;                    25    
+DELIM      }                    26    
+KEYWORD    func                 27    
+IDENT      fill_array           29    
+DELIM      (                    29    
+DELIM      )                    29    
+DELIM      :                    29    
+IDENT      void                 29    
+DELIM      {                    29    
+IDENT      g_arr                30    
+DELIM      [                    30    
+NUM        0                    30    0
+DELIM      ]                    30    
+OP         =                    30    
+NUM        1                    30    1
+DELIM      ;                    30    
+IDENT      g_arr                31    
+DELIM      [                    31    
+NUM        1                    31    1
+DELIM      ]                    31    
+OP         =                    31    
+NUM        2                    31    2
+DELIM      ;                    31    
+IDENT      g_arr                32    
+DELIM      [                    32    
+NUM        2                    32    2
+DELIM      ]                    32    
+OP         =                    32    
+NUM        3                    32    3
+DELIM      ;                    32    
+DELIM      }                    33    
+KEYWORD    main                 34    
+DELIM      (                    35    
+DELIM      )                    35    
+DELIM      {                    35    
+KEYWORD    var                  36    
+IDENT      a                    37    
+DELIM      :                    37    
+KEYWORD    int                  37    
+DELIM      ,                    37    
+IDENT      b                    37    
+DELIM      :                    37    
+KEYWORD    int                  37    
+OP         =                    37    
+NUM        10                   37    10
+DELIM      ;                    37    
+KEYWORD    write                38    
+NUM        1000                 39    1000
+DELIM      ;                    39    
+KEYWORD    write                39    
+IDENT      g_var                42    
+DELIM      ;                    42    
+KEYWORD    write                42    
+IDENT      func1                45    
+DELIM      (                    45    
+NUM        5                    45    5
+DELIM      )                    45    
+DELIM      ;                    45    
+KEYWORD    write                45    
+IDENT      func2                46    
+DELIM      (                    46    
+NUM        5                    46    5
+DELIM      )                    46    
+DELIM      ;                    46    
+KEYWORD    write                46    
+IDENT      test_switch          49    
+DELIM      (                    49    
+NUM        1                    49    1
+DELIM      )                    49    
+DELIM      ;                    49    
+KEYWORD    write                49    
+IDENT      test_switch          50    
+DELIM      (                    50    
+NUM        2                    50    2
+DELIM      )                    50    
+DELIM      ;                    50    
+KEYWORD    write                50    
+IDENT      test_switch          51    
+DELIM      (                    51    
+NUM        3                    51    3
+DELIM      )                    51    
+DELIM      ;                    51    
+KEYWORD    write                51    
+IDENT      test_switch          52    
+DELIM      (                    52    
+NUM        4                    52    4
+DELIM      )                    52    
+DELIM      ;                    52    
+KEYWORD    write                52    
+IDENT      test_switch          53    
+DELIM      (                    53    
+NUM        100                  53    100
+DELIM      )                    53    
+DELIM      ;                    53    
+IDENT      fill_array           53    
+DELIM      (                    56    
+DELIM      )                    56    
+DELIM      ;                    56    
+KEYWORD    write                57    
+IDENT      g_arr                57    
+DELIM      [                    57    
+NUM        0                    57    0
+DELIM      ]                    57    
+DELIM      ;                    57    
+KEYWORD    write                57    
+IDENT      g_arr                58    
+DELIM      [                    58    
+NUM        1                    58    1
+DELIM      ]                    58    
+DELIM      ;                    58    
+KEYWORD    var                  58    
+IDENT      k                    61    
+DELIM      :                    61    
+KEYWORD    int                  61    
+OP         =                    61    
+NUM        0                    61    0
+DELIM      ;                    61    
+KEYWORD    do                   62    
+DELIM      {                    62    
+KEYWORD    write                63    
+IDENT      k                    63    
+DELIM      ;                    63    
+IDENT      k                    63    
+OP         =                    64    
+IDENT      k                    64    
+OP         +                    64    
+NUM        1                    64    1
+DELIM      ;                    64    
+DELIM      }                    65    
+KEYWORD    while                65    
+DELIM      (                    65    
+IDENT      k                    65    
+OP         <                    65    
+NUM        2                    65    2
+DELIM      )                    65    
+DELIM      ;                    65    
+IDENT      a                    66    
+OP         =                    68    
+IDENT      func1                68    
+DELIM      (                    68    
+NUM        9                    68    9
+DELIM      )                    68    
+DELIM      ;                    68    
+KEYWORD    write                68    
+IDENT      a                    69    
+DELIM      ;                    69    
+KEYWORD    var                  69    
+IDENT      x                    72    
+DELIM      :                    72    
+KEYWORD    int                  72    
+OP         =                    72    
+NUM        5                    72    5
+DELIM      ;                    72    
+KEYWORD    if                   73    
+DELIM      (                    73    
+IDENT      x                    73    
+OP         <                    73    
+NUM        10                   73    10
+ERROR      Unknown character '&' 73    
+
+Total tokens: 277

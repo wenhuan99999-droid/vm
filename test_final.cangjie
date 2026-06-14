@@ -20,7 +20,7 @@ func test_switch(n:int):int {
         case 2: result = 200;
         case 3: result = 300;
         case 4: result = 400;
-        default: result = 999;
+        default: ;
     }
     return result;
 }
