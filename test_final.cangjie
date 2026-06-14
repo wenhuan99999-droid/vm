@@ -17,6 +17,9 @@ func test_switch(n:int):int {
     var result:int;
     switch(n) {
         case 1: result = 100;
+        case 2: result = 200;
+        case 3: result = 300;
+        case 4: result = 400;
         default: result = 999;
     }
     return result;
@@ -43,7 +46,11 @@ main() {
     write func2(5);        // 应输出 10
     
     // 测试功能1: switch语句
-    write test_switch(1);  // 应输出 100
+    write test_switch(1);  // case 1 → 输出100
+    write test_switch(2);  // case 2 → 输出200
+    write test_switch(3);  // case 3 → 输出300
+    write test_switch(4);  // case 4 → 输出400
+    write test_switch(100);  // default → 输出999
     
     // 测试功能7: 数组
     fill_array();

@@ -1271,7 +1271,8 @@ ASTNode* return_stat() {
     Token return_token;
     return_token.type = TOKEN_KEYWORD;
     strcpy(return_token.lexeme, "return");
-
+    return_token.line_no = current_token.line_no;  // 保存当前行号
+    
     ASTNode *node = create_node(return_token);
     node->left = expr_node;
 
@@ -1734,6 +1735,19 @@ void exit_scope(void) {
     current_offset = scope_offsets[current_scope];  // 恢复到进入作用域之前的 offset
 }
 
+// 临时变量管理函数
+int alloc_temp_var(const char *type) {
+    // 分配一个临时变量，返回栈偏移量
+    return current_offset++;
+}
+
+void free_temp_var(void) {
+    // 释放最后分配的临时变量
+    if (current_offset > 0) {
+        current_offset--;
+    }
+}
+
 void generate_code(const char *op, const char *arg, int line) {
     if (code_count >= MAX_CODE_LINES) {
         error("Code buffer overflow");
@@ -2091,8 +2105,38 @@ void process_node(ASTNode *node) {
             process_node(node->right);
             exit_scope();
         } else if (strcmp(tok.lexeme, "switch") == 0) {
-            process_node(node->left);
-            generate_code("STO", "SWITCH_VAL", tok.line_no);
+            // 先分配临时变量来存储switch表达式的值
+            int switch_temp_offset = alloc_temp_var("int");
+            char switch_temp_arg[MAX_IDENT_LEN];
+            sprintf(switch_temp_arg, "%d", switch_temp_offset);
+            
+            // 手动处理switch表达式（参数节点），避免调用process_node生成额外代码
+            if (node->left && node->left->token.type == TOKEN_IDENTIFIER) {
+                // 直接从符号表加载参数值
+                int idx = lookup_symbol(node->left->token.lexeme, current_scope);
+                if (idx != -1) {
+                    char load_arg[MAX_IDENT_LEN];
+                    sprintf(load_arg, "%d", symbol_table[idx].offset);
+                    // 如果是全局变量，加上全局变量基址
+                    if (symbol_table[idx].scope == 0) {
+                        generate_code("LOADI", load_arg, tok.line_no);
+                        generate_code("ADD", "", tok.line_no);
+                        generate_code("LOADIDX", "", tok.line_no);
+                    } else {
+                        generate_code("LOAD", load_arg, tok.line_no);
+                    }
+                    // 存储到临时变量
+                    generate_code("STO", switch_temp_arg, tok.line_no);
+                }
+            } else {
+                // 其他表达式，调用process_node处理
+                process_node(node->left);
+                generate_code("STO", switch_temp_arg, tok.line_no);
+            }
+            
+            // 再分配一个临时变量用于case比较
+            int case_temp_offset = alloc_temp_var("int");
+            (void)case_temp_offset;  // 暂时不使用，用于占用栈空间
 
             ASTNode *cases = node->right;
             char *default_label = new_label("DEFAULT");
@@ -2100,7 +2144,7 @@ void process_node(ASTNode *node) {
 
             while (cases) {
                 if (strcmp(cases->token.lexeme, "case") == 0) {
-                    generate_code("LOAD", "SWITCH_VAL", tok.line_no);
+                    generate_code("LOAD", switch_temp_arg, tok.line_no);
                     char case_val[20];
                     sprintf(case_val, "%d", cases->left->token.int_value);
                     generate_code("LOADI", case_val, tok.line_no);
@@ -2129,6 +2173,9 @@ void process_node(ASTNode *node) {
             }
             generate_code("BR", end_switch_label, tok.line_no);
             generate_code(end_switch_label, ":", tok.line_no);
+            
+            // 释放临时变量空间
+            free_temp_var();
         } else if (strcmp(tok.lexeme, "read") == 0) {
             if (node->left && node->left->token.type == TOKEN_IDENTIFIER) {
                 ASTNode *arr_index = node->left->left;
