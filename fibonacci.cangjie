@@ -1,0 +1,24 @@
+// 计算斐波那契数列前10项
+main(){
+    var n:int;
+    var a:int;
+    var b:int;
+    var c:int;
+    var i:int;
+    
+    n = 10;
+    a = 0;
+    b = 1;
+    
+    write a;
+    write b;
+    
+    i = 2;
+    while(i < n){
+        c = a + b;
+        write c;
+        a = b;
+        b = c;
+        i = i + 1;
+    }
+}

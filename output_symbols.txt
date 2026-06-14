@@ -1,0 +1,12 @@
+===== Symbol Table =====
+Name            Kind     Type     Scope  Offset ArraySize
+------------------------------------------------
+g_var           VAR      int      0      0      0       
+g_arr           ARRAY    int      0      1      3       
+func1           FUNC     int      0      4      0       
+func2           FUNC     int      0      4      0       
+test_switch     FUNC     int      0      4      0       
+fill_array      FUNC     void     0      4      0       
+main            FUNC     void     0      4      0       
+
+Total symbols: 7
