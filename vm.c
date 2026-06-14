@@ -1579,6 +1579,7 @@ ASTNode* fun_declaration() {
     Token func_token;
     func_token.type = TOKEN_KEYWORD;
     strcpy(func_token.lexeme, "func");
+    func_token.line_no = id_token.line_no;  // 使用函数名的行号
 
     ASTNode *node = create_node(func_token);
     ASTNode *name_node = create_node(id_token);
@@ -1597,6 +1598,7 @@ ASTNode* fun_declaration() {
 
 ASTNode* main_declaration() {
     match_keyword("main");
+    int main_line = current_token.line_no;  // 保存 main 关键字的行号
     match_delimiter('(');
     match_delimiter(')');
 
@@ -1605,6 +1607,7 @@ ASTNode* main_declaration() {
     Token main_token;
     main_token.type = TOKEN_KEYWORD;
     strcpy(main_token.lexeme, "main");
+    main_token.line_no = main_line;  // 设置行号
 
     ASTNode *node = create_node(main_token);
     node->right = body;
@@ -2481,11 +2484,16 @@ void vm_execute(void) {
 
 void print_code(FILE *out) {
     fprintf(out, "===== Intermediate Code =====\n");
-    fprintf(out, "%-4s %-12s %-15s %s\n", "Line", "Op", "Arg", "Source Line");
-    fprintf(out, "----------------------------------------\n");
+    fprintf(out, "%-4s %-12s %-18s %s\n", "Line", "Opcode/Label", "Operand/Jump Target", "Source Line");
+    fprintf(out, "---------------------------------------------------------------\n");
     
     for (int i = 0; i < code_count; i++) {
-        fprintf(out, "%-4d %-12s %-15s %d\n", i + 1, code[i].op, code[i].arg, code[i].line_no);
+        // 如果是标签（Arg为":"），特殊显示
+        if (strcmp(code[i].arg, ":") == 0) {
+            fprintf(out, "%-4d %-12s %-18s %d\n", i + 1, code[i].op, "(Function Entry)", code[i].line_no);
+        } else {
+            fprintf(out, "%-4d %-12s %-18s %d\n", i + 1, code[i].op, code[i].arg, code[i].line_no);
+        }
     }
     
     fprintf(out, "\nTotal instructions: %d\n", code_count);
